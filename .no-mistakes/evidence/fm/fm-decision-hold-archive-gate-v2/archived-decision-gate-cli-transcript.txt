@@ -1,0 +1,39 @@
+=== The captain answers every decision through fm-decision-hold.sh answer ===
+answered: nav
+answered: density
+answered: theme
+
+=== Retention (tasks-axi prune) sweeps the two earliest answered decisions into the archive ===
+-- data/backlog.md still holds:
+   fm-decision-hold
+-- data/done-archive.md now holds:
+   fm-decision-hold
+-- the archived rows still carry the captain answer:
+   archived resolution blocks: 2
+
+=== BEFORE THE FIX (base commit 1cb900c): the completion gate can never pass again ===
+fm-decision-hold: captain decision sample-app-shell-ux-audit-decision-density is absent from <FM_HOME_FIXTURE>/live/data/backlog.md
+   exit status: 1
+
+=== AFTER THE FIX (target commit 01af025): the same command on the same data ===
+verified: sample-app-shell-ux-audit unresolved-decision inventory
+   exit status: 0
+
+=== Both data files are byte-identical after the fixed run ===
+   unchanged: data/backlog.md, data/done-archive.md
+
+=== TEETH: an archived row closed WITHOUT a captain answer must still be refused ===
+-- archived row carries no captain answer:
+   archived resolution blocks: 0
+-- verify:
+fm-decision-hold: captain decision sample-lost-answer-review-decision-placement is neither actively held nor durably resolved
+   exit status: 1
+-- repair (cannot rewrite an archived row):
+fm-decision-hold: captain decision sample-lost-answer-review-decision-placement was archived by backlog retention into <FM_HOME_FIXTURE>/teeth/data/done-archive.md, which tasks-axi cannot rewrite, so the missing captain decision can no longer be recorded on it; the archived record is the durable one
+   exit status: 1
+-- re-hold (must not claim it is durably resolved, must not create a live row):
+fm-decision-hold: captain decision sample-lost-answer-review-decision-placement was closed with no recorded captain answer and then archived by backlog retention into <FM_HOME_FIXTURE>/teeth/data/done-archive.md, which tasks-axi cannot rewrite; neither repair nor a fresh hold on this decision key can record the missing answer, and placement stays in the recorded decision inventory of sample-lost-answer-review, so verify keeps refusing this origin
+   exit status: 1
+   no colliding live backlog row was created
+
+WORKDIR=<FM_HOME_FIXTURE>
