@@ -1,0 +1,67 @@
+=== A. bin/fm-brief.sh is the real owner of each delivery mode's definition of done ===
+    (AGENTS.md dropped the per-mode ready-signal strings and now points here)
+  --mode no-mistakes ->
+      57:When you believe it is complete, append `done: {summary}` to the status file and stop.
+      71:After /no-mistakes reports CI green (the CI-ready return point - do not wait for it to keep monitoring in the background until merge), append `done: PR {url} checks green` and stop. You are finished.
+  --mode direct-PR ->
+      57:When it is implemented and committed, push your branch and open a PR with `gh-axi`, then append `done: PR {url}` to the status file and stop.
+  --mode local-only ->
+      58:When it is implemented and committed, append `done: ready in branch fm/demo-local-only` to the status file and stop.
+
+=== B. custom-check authoring contract, MOVED into bin/fm-check-register.sh's header, behaves as the header now claims ===
+error: custom check is unavailable
+error: custom check is unavailable
+  [1] mode 0644 (contract requires 0700):
+      rc=1
+  [2] mode 0700, register:
+  registered: state/t1.check.sh
+      rc=0
+  [3] registered before edit? yes
+  [4] registered after edit (since-edited check must be refused)? no - refused without execution
+  [5] unregistered task t3 accepted? no - refused without execution
+  [6] symlinked check:
+      rc=1
+
+=== C. bin/fm-promote.sh is the real owner of the promoted worker's ship instructions ===
+  [before] kind=scout repo=demo 
+  [1] promote without --mode/--yolo:
+      error: promotion requires --mode <no-mistakes|direct-PR|local-only>; decide it now from the scout's findings and the project's registered posture in data/projects.md
+  [2] promote with mode+yolo:
+      promoted scout-1 to ship mode=no-mistakes yolo=off (teardown protection restored)
+      next: FM_HOME=/tmp/nm-work/promotehome bin/fm-send.sh fm-scout-1 '<ship instructions for mode=no-mistakes: review scratch state with git status and git log; reset to a clean default-branch base; carry over only intended fix changes; create branch fm/scout-1; implement; report done>'
+  [after] repo=demo kind=ship mode=no-mistakes yolo=off 
+
+=== D. ask-user decision-delivery mechanics, MOVED into the ask-user-authority skill ===
+  ## Delivering the decision to the worker
+  
+  This section is the single owner of how a settled ask-user decision reaches the worker; `AGENTS.md` section 7 keeps only the authority boundary and the trigger that loads this skill.
+  
+  Send the same worker one exact decision naming the decision key, the step, the action, the affected finding IDs, any instructions the Fix needs, and the exact response command to run.
+  Pass `fm-send`'s `--resolve-key` so the worker's open decision record closes at answer time rather than waiting on a later status line (contract: `bin/fm-send.sh` header).
+  Require the matching `resolved` event before treating the decision as landed.
+  Forbid `--yes`, which would silently bypass the authority check and any required captain escalation.
+  Require the worker to process every synchronous return until the run completes or raises a genuinely new escalation, so a decision never stalls one gate short of the outcome.
+  Resume fleet supervision immediately once the decision lands.
+  
+  ## Classification examples
+
+=== E. targeted test runs ===
+  $ bash tests/fm-ask-user-authority.test.sh
+      ok - primary workers and secondmates receive the authority rule through generated instructions
+      exit=0
+  $ bash tests/fm-documentation-audiences.test.sh
+      ok - documentation inventory classifies every maintained prose surface exactly once
+      ok - classification, setup routing, and maintained-prose scope fail safely
+      ok - required documentation owner pointers cannot silently disappear
+      ok - local links resolve while dates, versions, commands, and incident prose remain semantically reviewed
+      exit=0
+  $ bash tests/fm-brief.test.sh
+      ok - fm-brief.sh: ship and scout scaffolds make omitted Herdr intent fail-visible
+      ok - fm-brief.sh: Herdr lab contract covers scouts and rejects secondmate misuse
+      ok - fm-brief.sh: --no-projects scaffolds a project-less charter and guards misuse
+      ok - fm-brief.sh: marked requests avoid generic acknowledgements and preserve material reporting
+      ok - fm-brief.sh: relative directory inputs ignore CDPATH, render stable absolute charter paths, or fail loudly
+      ok - fm-brief.sh: custom pause verb renders in every scaffold
+      ok - fm-brief.sh: investigation and visual-review completions load the shared decision policy
+      ok - fm-brief: scout and secondmate code paths still scaffold well-formed briefs
+      exit=0

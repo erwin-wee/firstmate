@@ -1,0 +1,96 @@
+=== removed-from-AGENTS.md -> owner that carries it (each verified in the owner) ===
+
+[1] 12-entry config/ block  ->  docs/configuration.md
+    config/crew-harness              docs/configuration.md mentions=5
+    config/crew-dispatch.json        docs/configuration.md mentions=7
+    config/secondmate-harness        docs/configuration.md mentions=5
+    config/backlog-backend           docs/configuration.md mentions=4
+    config/backend                   docs/configuration.md mentions=6
+    config/calm                      docs/configuration.md mentions=2
+    config/startup-memory-budget     docs/configuration.md mentions=2
+    config/herdr-presentation-spaces docs/configuration.md mentions=1
+    config/trace-context             docs/configuration.md mentions=2
+    config/cmux-socket-password      docs/configuration.md mentions=4
+    config/wedge-alarm               docs/configuration.md mentions=3
+    config/x-mode.env                docs/configuration.md mentions=2
+
+[2] ~50-entry state/ inventory  ->  the producing script named by docs/configuration.md
+    fm-pending-reply-lib.sh    exists=yes  still reachable via: docs/architecture.md docs/configuration.md AGENTS.md docs/scripts.md 
+    fm-procevent.sh            exists=yes  still reachable via: docs/decision-hold-lifecycle.md docs/verification/process-event-sources.md .agents/skills/process-event-sources/SKILL.md docs/configuration.md 
+    fm-decision-hold.sh        exists=yes  still reachable via: docs/scripts.md .agents/skills/process-event-sources/SKILL.md .agents/skills/bearings/SKILL.md .agents/skills/decision-hold-lifecycle/SKILL.md docs/decision-hold-lifecycle.md docs/configuration.md 
+    fm-procevent-when.sh       exists=yes  still reachable via: docs/scripts.md .agents/skills/process-event-sources/SKILL.md docs/configuration.md 
+    fm-x-lib.sh                exists=yes  still reachable via: docs/scripts.md docs/configuration.md 
+    fm-public-followup.sh      exists=yes  still reachable via: docs/scripts.md docs/architecture.md docs/configuration.md .agents/skills/fmx-respond/SKILL.md 
+    fm-startup-network.sh      exists=yes  still reachable via: docs/verification/supervision.md docs/scripts.md .agents/skills/bootstrap-diagnostics/SKILL.md AGENTS.md docs/configuration.md docs/sessionstart-nudge.md 
+    fm-classify-lib.sh         exists=yes  still reachable via: docs/decision-hold-lifecycle.md docs/scripts.md docs/architecture.md docs/configuration.md .agents/skills/afk/SKILL.md AGENTS.md 
+
+[3] session-start 7-step restatement  ->  bin/fm-session-start.sh header (nine named stages, in more detail)
+    # ORDERING, and why LOCK now runs before BOOTSTRAP (the old AGENTS.md order
+    # was bootstrap-then-lock):
+    #
+    #   1. lock          - acquire the per-home session lock FIRST, before any
+    #                       mutating step runs.
+    #   2. bootstrap      - home-local stale Herdr projection cleanup runs only
+    #                       when this session actually holds the lock. Detect-only
+    #                       diagnostics always run. Bootstrap's six MUTATING sweeps
+    #                       (legacy PR-check migration, secondmate convergence,
+    #                       secondmate liveness, pending remote handoff retry,
+    #                       X-mode artifact writes, fleet sync) also run only when
+    #                       locked; the four network sweeps run in the deferred
+    #                       stage rather than this synchronous bootstrap section.
+    #   3. inactive outcomes + wake-drain - runs the local bounded inactive-outcome
+    #                       reconciliation before presenting durable wakes and advancing
+    #                       recovery handling state, so both only run when locked.
+    #   4. supervision-instructions - the one emitted operating block for the
+    #                       detected primary harness.
+    #   5. read-once contract - the do-not-re-read contract covering every source
+    #                       represented by the two digests below.
+    #   6. fleet digest   - a compact data/backlog.md identity/metadata listing,
+    #                       every state/*.meta, a bounded state/*.status tail,
+    #                       state/.afk, and a cheap per-task endpoint-liveness read:
+    #                       read-only, always runs.
+    #   7. network checks - the result of the deferred network stage started back at
+    #                       step 1, harvested WITHOUT waiting for it.
+    #   8. context digest - data/projects.md, data/secondmates.md, data/captain.md,
+    #                       data/captain-shared.md, data/learnings.md: read-only,
+    #                       always safe, always runs.
+    #   9. closing reminder - prints the context-specific watcher next step; this
+    #                       script points back to the emitted harness supervision
+    #                       block and deliberately never arms the watcher itself.
+    #
+
+[4] quota selection mechanics (TOON fallback, gates, catalog granularity, uncertainty-vs-ineligibility)  ->  .agents/skills/quota-array-dispatch/SKILL.md
+    
+    This skill is the single owner of the completion-aware profile-array selection procedure.
+    `AGENTS.md` section 4 owns the always-loaded intake boundary, load trigger, malformed-config refusal, every-candidate accounting, and strongest-reasoning/tie safety rules.
+    keyword TOON             occurrences in SKILL.md = 7
+    keyword eligibility      occurrences in SKILL.md = 3
+    keyword runway           occurrences in SKILL.md = 10
+    keyword uncertainty      occurrences in SKILL.md = 7
+    keyword provider-level   occurrences in SKILL.md = 1
+
+[5] validation-state label mapping  ->  bin/fm-crew-state.sh header
+    #      The run-step is AUTHORITATIVE: running/fixing -> working, ci -> working,
+    #      awaiting_approval/fix_review -> parked (with gate findings), terminal
+    #      passed/checks-passed -> done, failed/cancelled -> failed. EXCEPT: while
+    #      the active step is ci, `axi status` alone cannot tell "still waiting on
+
+[6] fm-send vs fm-control rationale  ->  docs/agent-control.md
+    The **data plane** is [`bin/fm-send.sh`](../bin/fm-send.sh): conversational text for the agent to read.
+    For a `kind=secondmate` target it always prepends the from-firstmate routing marker, because a secondmate is itself a firstmate and its reply must come back through the status path rather than a chat nobody reads.
+    
+    The **control plane** is [`bin/fm-control.sh`](../bin/fm-control.sh): allowlisted lifecycle verbs addressed to an exact task id.
+    
+    The split exists because the data plane's marking is exactly right for a message and exactly wrong for a lifecycle command.
+    A routing-marked `/quit` arrives as ordinary chat - `[fm-from-firstmate] /quit` - which the agent reasons about instead of executing.
+    The failure repeated across harnesses and homes, and the workaround (remember to use an unmarked send for agent-control commands, and improvise the right key or command per harness) lived only in agent prose, so it failed again every time a session did not happen to recall it.
+
+[7] 'Complexity alone is not expansion'  ->  .agents/skills/ask-user-authority/SKILL.md
+    25:4. Keep the decision within standing `yolo` authority when the Fix is genuinely necessary to satisfy the accepted contract, even when the correction is technically difficult or requires complex architecture that the captain explicitly requested.
+    65:- Complex architecture explicitly requested by the captain stays within scope and does not escalate merely because it is complex.
+
+[8] pr_head recording detail  ->  bin/fm-pr-check.sh
+    3:# exact pr_head=<sha> when available, then atomically arm a static merge poll.
+    67:# pr_head is recorded only when the forge's CLI can supply it. gh exposes the
+    70:# GitLab task records no pr_head. Both consumers already treat it as optional:
+    78:    && fm_pr_head_valid "$REMOTE_HEAD"; then

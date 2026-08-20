@@ -1,0 +1,139 @@
+=== AGENTS.md size: base 1cb900c vs branch head ed06962 ===
+FILE          LINES      BYTES   EST_TOKENS
+before          570      67769        22804
+after           506      53634        18047
+delta           -64     -14135        -4756
+byte reduction: 20.8%   line reduction: 11.2%
+(token estimate uses the same 0.3365 tokens/byte ratio the change description used)
+
+=== per-section byte comparison (## headings) ===
+SECTION                                                OLD_B   NEW_B   DELTA  STATUS
+00-preamble                                              878     878       0  IDENTICAL
+01-_1_Identity_and_prime_directives                     3566    3566       0  IDENTICAL
+02-_2_Layout_and_state                                 13272    4865   -8407  CHANGED
+03-_3_Session_start_run_once_at_every_session_start_    7592    3769   -3823  CHANGED
+04-_4_Harness_and_runtime_dispatch                      4189    3023   -1166  CHANGED
+05-_5_Recovery                                          1326    1326       0  IDENTICAL
+06-_6_Project_and_knowledge_management                  2635    2635       0  IDENTICAL
+07-_7_Task_lifecycle                                   14700   13851    -849  CHANGED
+08-_8_Supervision_protocol                              5427    5537     110  CHANGED
+09-_9_Escalation_and_captain_etiquette                  4143    4143       0  IDENTICAL
+10-_10_Backlog_contract                                 1833    1833       0  IDENTICAL
+11-_11_Crewmate_briefs                                  1412    1412       0  IDENTICAL
+12-_12_Self_update                                       551     551       0  IDENTICAL
+13-_13_Agent_only_reference_skills                      3369    3369       0  IDENTICAL
+14-_14_Relay                                            1581    1581       0  IDENTICAL
+15-_Captain_instruction_precedence                       904     904       0  IDENTICAL
+16-_Maintaining_this_file                                391     391       0  IDENTICAL
+(section 8's +110 bytes is the interim commit e9bf506 ADDING a supervision trigger, not this prune)
+
+=== path-reference check: every bin/ docs/ tests/ .agents/skills/ path named in AGENTS.md ===
+OK      bin/fm-backlog-handoff.sh
+OK      bin/fm-brief.sh
+OK      bin/fm-check-register.sh
+OK      bin/fm-classify-lib.sh
+OK      bin/fm-control.sh
+OK      bin/fm-crew-state.sh
+OK      bin/fm-ensure-agents-md.sh
+OK      bin/fm-harness.sh
+OK      bin/fm-merge-local.sh
+OK      bin/fm-operational-input.sh
+OK      bin/fm-pending-reply-lib.sh
+OK      bin/fm-pr-check.sh
+OK      bin/fm-pr-merge.sh
+OK      bin/fm-promote.sh
+OK      bin/fm-send.sh
+OK      bin/fm-session-start.sh
+OK      bin/fm-spawn.sh
+OK      bin/fm-startup-network.sh
+OK      bin/fm-supervision-instructions.sh
+OK      bin/fm-teardown.sh
+OK      bin/fm-watch.sh
+OK      docs/agent-control.md
+OK      docs/architecture.md
+OK      docs/configuration.md
+OK      docs/sessionstart-nudge.md
+OK      docs/supervision-protocols
+OK      docs/turnend-guard.md
+
+=== every skill named in AGENTS.md resolves to .agents/skills/<name>/SKILL.md ===
+OK      .agents/skills/ask-user-authority/SKILL.md
+OK      .agents/skills/bootstrap-diagnostics/SKILL.md
+OK      .agents/skills/decision-hold-lifecycle/SKILL.md
+OK      .agents/skills/diagnostic-reasoning/SKILL.md
+OK      .agents/skills/firstmate-codexapp/SKILL.md
+OK      .agents/skills/firstmate-coding-guidelines/SKILL.md
+OK      .agents/skills/firstmate-orca/SKILL.md
+OK      .agents/skills/fmx-respond/SKILL.md
+OK      .agents/skills/harness-adapters/SKILL.md
+OK      .agents/skills/process-event-sources/SKILL.md
+OK      .agents/skills/project-management/SKILL.md
+OK      .agents/skills/quota-array-dispatch/SKILL.md
+OK      .agents/skills/secondmate-provisioning/SKILL.md
+OK      .agents/skills/stow/SKILL.md
+OK      .agents/skills/stuck-crewmate-recovery/SKILL.md
+OK      .agents/skills/afk/SKILL.md (slash-invocable)
+OK      .agents/skills/updatefirstmate/SKILL.md (slash-invocable)
+
+=== docs/configuration.md headings AGENTS.md now points at ===
+OK      heading: Operational home layout and state
+OK      heading: Runtime backend
+OK      heading: Environment variables
+
+=== safety-boundary preservation (old count vs new count) ===
+never write to a project                       old=1   new=1   PRESENT
+no merge without captain's word                old=1   new=1   PRESENT
+never tear down unlanded work                  old=1   new=1   PRESENT
+crewmates never address the captain            old=1   new=1   PRESENT
+report outcomes faithfully                     old=1   new=1   PRESENT
+never merge a red PR                           old=1   new=1   PRESENT
+guarded merge scripts only                     old=1   new=1   PRESENT
+teardown refusal = stop/investigate            old=1   new=1   PRESENT
+never force teardown                           old=1   new=1   PRESENT
+worktree isolation (spawn)                     old=1   new=1   PRESENT
+worktree isolation (brief)                     old=1   new=1   PRESENT
+worktree isolation (supervision)               old=1   new=1   PRESENT
+drain before acting                            old=1   new=1   PRESENT
+ack only after handling                        old=1   new=1   PRESENT
+lock-refused read-only                         old=1   new=1   PRESENT
+no unverified adapter dispatch                 old=1   new=1   PRESENT
+malformed config is an error                   old=1   new=1   PRESENT
+strongest-reasoning preserved                  old=1   new=1   PRESENT
+ask-user-authority load trigger                old=1   new=1   PRESENT
+never edit state internals                     old=0   new=1   PRESENT
+no broad watcher kill                          old=1   new=1   PRESENT
+away mode expands no authority                 old=1   new=1   PRESENT
+captain-instruction precedence                 old=1   new=1   PRESENT
+no agent name as co-author                     old=1   new=1   PRESENT
+validation supersession sequence               old=1   new=1   PRESENT
+pre-invalidation base rule                     old=1   new=1   PRESENT
+
+=== skill-load triggers: section 13 is byte-identical; dropped body mentions were inventory annotations only ===
+bootstrap-diagnostics        old=2   new=2  
+diagnostic-reasoning         old=2   new=2  
+ask-user-authority           old=2   new=3  
+quota-array-dispatch         old=2   new=2  
+harness-adapters             old=6   new=6  
+firstmate-orca               old=1   new=1  
+project-management           old=2   new=2  
+stuck-crewmate-recovery      old=4   new=4  
+secondmate-provisioning      old=11  new=10 
+decision-hold-lifecycle      old=4   new=3  
+process-event-sources        old=2   new=1  
+fmx-respond                  old=5   new=4  
+firstmate-codexapp           old=1   new=1  
+firstmate-coding-guidelines  old=2   new=2  
+stow                         old=1   new=1  
+afk                          old=9   new=7  
+updatefirstmate              old=1   new=1  
+
+=== em dashes in AGENTS.md (guideline: none) ===
+AGENTS.md:0
+/tmp/nm-work/AGENTS.old.md:0
+
+=== files touched by the branch (nothing under projects/ data/ state/, CLAUDE.md untouched) ===
+.agents/skills/ask-user-authority/SKILL.md
+.gitignore
+AGENTS.md
+bin/fm-check-register.sh
+bin/fm-promote.sh
